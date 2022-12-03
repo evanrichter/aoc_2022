@@ -26,9 +26,8 @@ fn common(a: &str, b: &str) -> char {
     let a: HashSet<char> = a.chars().collect();
     let b: HashSet<char> = b.chars().collect();
 
-    let ab: HashSet<&char> = a.intersection(&b).collect();
-
-    **ab.iter().next().unwrap()
+    let common: HashSet<char> = &a & &b;
+    common.into_iter().next().unwrap()
 }
 
 fn priority(c: char) -> u8 {
@@ -61,8 +60,6 @@ fn common3(a: &str, b: &str, c: &str) -> char {
     let b: HashSet<char> = b.chars().collect();
     let c: HashSet<char> = c.chars().collect();
 
-    let ab: HashSet<char> = a.intersection(&b).cloned().collect();
-    let abc: HashSet<&char> = ab.intersection(&c).collect();
-
-    **abc.iter().next().unwrap()
+    let common: HashSet<char> = &(&a & &b) & &c;
+    common.into_iter().next().unwrap()
 }
