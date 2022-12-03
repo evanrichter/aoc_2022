@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 pub fn solve(input: String) -> String {
     let part1 = part1(&input);
     let part2 = part2(&input);
@@ -20,18 +22,13 @@ fn split(input: &str) -> (&str, &str) {
     (&input[0..len], &input[len..])
 }
 
-fn common(left: &str, right: &str) -> char {
-    let mut left = left.as_bytes().to_vec();
-    let mut right = right.as_bytes().to_vec();
-    left.sort_unstable();
-    right.sort_unstable();
+fn common(a: &str, b: &str) -> char {
+    let a: HashSet<char> = a.chars().collect();
+    let b: HashSet<char> = b.chars().collect();
 
-    for l in left {
-        if right.contains(&l) {
-            return l as char;
-        }
-    }
-    panic!("not found")
+    let ab: HashSet<&char> = a.intersection(&b).collect();
+
+    **ab.iter().next().unwrap()
 }
 
 fn priority(c: char) -> u8 {
@@ -60,18 +57,12 @@ fn part2(input: &str) -> String {
 }
 
 fn common3(a: &str, b: &str, c: &str) -> char {
-    let mut a = a.as_bytes().to_vec();
-    let mut b = b.as_bytes().to_vec();
-    let mut c = c.as_bytes().to_vec();
-    a.sort_unstable();
-    b.sort_unstable();
-    c.sort_unstable();
+    let a: HashSet<char> = a.chars().collect();
+    let b: HashSet<char> = b.chars().collect();
+    let c: HashSet<char> = c.chars().collect();
 
-    for a in a {
-        if b.contains(&a) && c.contains(&a) {
-            return a as char;
-        }
-    }
+    let ab: HashSet<char> = a.intersection(&b).cloned().collect();
+    let abc: HashSet<&char> = ab.intersection(&c).collect();
 
-    panic!("not found")
+    **abc.iter().next().unwrap()
 }
