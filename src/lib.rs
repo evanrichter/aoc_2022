@@ -1,4 +1,7 @@
-mod day1;
+mod days {
+    automod::dir!(pub "src/days");
+}
+pub use days::*;
 
 #[rustfmt::skip]
 const SOLVERS: &[fn(String) -> String] = &[

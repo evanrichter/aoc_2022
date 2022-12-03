@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.66"
+automod = "1.0.4"
 emergence = "1.0.1"

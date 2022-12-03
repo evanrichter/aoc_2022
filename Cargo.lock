@@ -7,6 +7,7 @@ name = "advent"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "automod",
  "emergence",
 ]
 
@@ -21,6 +22,17 @@ name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
+
+[[package]]
+name = "automod"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7feac164c18ee671e3e01be1ab9c0a362f5ef3eda26d44b06f1df897cd43c4e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "base64"
