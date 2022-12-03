@@ -7,6 +7,7 @@ pub use days::*;
 const SOLVERS: &[fn(String) -> String] = &[
     day1::solve,
     day2::solve,
+    day3::solve,
 ];
 
 pub fn solve_all() -> anyhow::Result<()> {
