@@ -6,6 +6,7 @@ pub use days::*;
 #[rustfmt::skip]
 const SOLVERS: &[fn(String) -> String] = &[
     day1::solve,
+    day2::solve,
 ];
 
 pub fn solve_all() -> anyhow::Result<()> {
