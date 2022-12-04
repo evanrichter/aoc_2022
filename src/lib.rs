@@ -3,13 +3,6 @@ mod days {
 }
 pub use days::*;
 
-#[rustfmt::skip]
-const SOLVERS: &[fn(String) -> String] = &[
-    day1::solve,
-    day2::solve,
-    day3::solve,
-];
-
 pub fn solve_all() -> anyhow::Result<()> {
     let aoc = emergence::AoC::new(2022)?;
 
@@ -22,3 +15,10 @@ pub fn solve_all() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[rustfmt::skip]
+const SOLVERS: &[fn(String) -> String] = &[
+    day1::solve,
+    day2::solve,
+    day3::solve,
+];
