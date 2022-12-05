@@ -16,10 +16,10 @@ pub fn solve_all() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[rustfmt::skip]
 const SOLVERS: &[fn(String) -> String] = &[
     day1::solve,
     day2::solve,
     day3::solve,
     day4::solve,
+    day5::solve,
 ];
