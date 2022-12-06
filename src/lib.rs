@@ -22,4 +22,5 @@ const SOLVERS: &[fn(String) -> String] = &[
     day3::solve,
     day4::solve,
     day5::solve,
+    day6::solve,
 ];
