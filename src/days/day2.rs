@@ -1,12 +1,12 @@
 pub fn solve(input: String) -> String {
     // part 1
     let part1: u32 = input
-        .split("\n")
+        .split('\n')
         .map(|l| {
             if l.is_empty() {
                 0
             } else {
-                let (them, me) = l.split_once(" ").unwrap();
+                let (them, me) = l.split_once(' ').unwrap();
                 let shape_score = match me {
                     "X" => 1,
                     "Y" => 2,
@@ -21,12 +21,12 @@ pub fn solve(input: String) -> String {
 
     // part 2
     let part2: u32 = input
-        .split("\n")
+        .split('\n')
         .map(|l| {
             if l.is_empty() {
                 0
             } else {
-                let (them, me) = l.split_once(" ").unwrap();
+                let (them, me) = l.split_once(' ').unwrap();
                 let outcome_score = match me {
                     "X" => 0,
                     "Y" => 3,
@@ -49,8 +49,8 @@ pub fn solve(input: String) -> String {
 }
 
 fn score(them: char, me: char) -> u32 {
-    let them = them as u8 - 'A' as u8;
-    let me = me as u8 - 'X' as u8;
+    let them = them as u8 - b'A';
+    let me = me as u8 - b'X';
 
     match (them, me) {
         // ties

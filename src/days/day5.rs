@@ -83,7 +83,7 @@ fn part2(input: &str) -> String {
 
         let krates = &source[source.len() - mov.count..];
         // put crates in new place
-        dest.extend_from_slice(&krates);
+        dest.extend_from_slice(krates);
         // remove crates from old
         source.truncate(source.len() - mov.count);
 

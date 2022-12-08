@@ -140,7 +140,7 @@ fn rebuild_fs(input: &str) -> Inode {
                 let inode: Inode = lines.next().unwrap().parse().unwrap();
                 let mut dir = &mut fs;
                 for dir_name in &pwd {
-                    dir = dir.cd_mut(&dir_name).unwrap();
+                    dir = dir.cd_mut(dir_name).unwrap();
                 }
                 dir.push_inode(inode);
             },

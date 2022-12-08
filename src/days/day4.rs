@@ -9,7 +9,7 @@ fn part1(input: &str) -> String {
         .trim()
         .lines()
         .map(ranges)
-        .filter_map(|(a, b)| (a.fully_contains(&b) || b.fully_contains(&a)).then(|| ()))
+        .filter_map(|(a, b)| (a.fully_contains(&b) || b.fully_contains(&a)).then_some(()))
         .count();
     format!("{count}")
 }
@@ -19,7 +19,7 @@ fn part2(input: &str) -> String {
         .trim()
         .lines()
         .map(ranges)
-        .filter_map(|(a, b)| a.overlaps(&b).then(|| ()))
+        .filter_map(|(a, b)| a.overlaps(&b).then_some(()))
         .count();
     format!("{count}")
 }

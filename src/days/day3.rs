@@ -32,9 +32,9 @@ fn common(a: &str, b: &str) -> char {
 
 fn priority(c: char) -> u8 {
     if c.is_ascii_lowercase() {
-        (c as u8) - 'a' as u8 + 1
+        (c as u8) - b'a' + 1
     } else {
-        (c as u8) - 'A' as u8 + 27
+        (c as u8) - b'A' + 27
     }
 }
 
