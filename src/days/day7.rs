@@ -186,15 +186,18 @@ fn dfs_part2(dir: &Inode, size_goal: usize, best_fit: &mut usize) {
         return;
     };
 
-    if *size >= size_goal {
-        // scan children that are smaller and potentially better fits
-        for ii in inodes {
-            dfs_part2(ii, size_goal, best_fit);
-        }
-
-        // apply this size if it's the best
-        *best_fit = (*best_fit).min(*size);
+    if *size < size_goal {
+        // if this dir is smaller than the goal, then this one, nor the
+        // children will free up enough space
+        return;
     }
+
+    for ii in inodes {
+        dfs_part2(ii, size_goal, best_fit);
+    }
+
+    // apply this size if it's the best
+    *best_fit = (*best_fit).min(*size);
 }
 
 fn part2(input: &str) -> usize {
