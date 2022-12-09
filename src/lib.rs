@@ -9,14 +9,14 @@ pub fn solve_all() -> anyhow::Result<()> {
     for (day, solver) in SOLVERS.iter().enumerate() {
         let day = day + 1;
         let input = aoc.read_or_fetch(day)?;
-        let solution = solver(input);
+        let solution = solver(&input);
         println!("day {day} solution: {solution}");
     }
 
     Ok(())
 }
 
-const SOLVERS: &[fn(String) -> String] = &[
+const SOLVERS: &[fn(&str) -> String] = &[
     day1::solve,
     day2::solve,
     day3::solve,

@@ -1,4 +1,4 @@
-pub fn solve(input: String) -> String {
+pub fn solve(input: &str) -> String {
     // part 1
     let part1: u32 = input
         .split('\n')

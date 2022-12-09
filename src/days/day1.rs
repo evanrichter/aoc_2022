@@ -1,4 +1,4 @@
-pub fn solve(input: String) -> String {
+pub fn solve(input: &str) -> String {
     // part 1
     let calorie_stream: Vec<Option<u32>> = input.lines().map(|s| s.parse().ok()).collect();
     let mut elves: Vec<Vec<u32>> = Vec::new();

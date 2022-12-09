@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-pub fn solve(input: String) -> String {
+pub fn solve(input: &str) -> String {
     let part1 = part1(&input);
     let part2 = part2(&input);
     format!("{part1}, {part2}")

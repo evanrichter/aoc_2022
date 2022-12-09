@@ -3,7 +3,7 @@ use std::{
     ops::{Add, Sub},
 };
 
-pub fn solve(input: String) -> String {
+pub fn solve(input: &str) -> String {
     let input = input.trim();
     let p1 = part1(input);
     let p2 = part2(input);
