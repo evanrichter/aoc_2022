@@ -17,27 +17,27 @@ pub fn solve_all() -> anyhow::Result<()> {
 }
 
 const SOLVERS: &[fn(&str) -> String] = &[
-    day1::solve,
-    day2::solve,
-    day3::solve,
-    day4::solve,
-    day5::solve,
-    day6::solve,
-    day7::solve,
-    day8::solve,
-    day9::solve,
+    day01::solve,
+    day02::solve,
+    day03::solve,
+    day04::solve,
+    day05::solve,
+    day06::solve,
+    day07::solve,
+    day08::solve,
+    day09::solve,
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
-    (day1::solve, include_str!("inputs/day01.txt")),
-    (day2::solve, include_str!("inputs/day02.txt")),
-    (day3::solve, include_str!("inputs/day03.txt")),
-    (day4::solve, include_str!("inputs/day04.txt")),
-    (day5::solve, include_str!("inputs/day05.txt")),
-    (day6::solve, include_str!("inputs/day06.txt")),
-    (day7::solve, include_str!("inputs/day07.txt")),
-    (day8::solve, include_str!("inputs/day08.txt")),
-    (day9::solve, include_str!("inputs/day09.txt")),
+    (day01::solve, include_str!("inputs/day01.txt")),
+    (day02::solve, include_str!("inputs/day02.txt")),
+    (day03::solve, include_str!("inputs/day03.txt")),
+    (day04::solve, include_str!("inputs/day04.txt")),
+    (day05::solve, include_str!("inputs/day05.txt")),
+    (day06::solve, include_str!("inputs/day06.txt")),
+    (day07::solve, include_str!("inputs/day07.txt")),
+    (day08::solve, include_str!("inputs/day08.txt")),
+    (day09::solve, include_str!("inputs/day09.txt")),
 ];
 
 pub fn solve_with_static_input(day: usize) {
