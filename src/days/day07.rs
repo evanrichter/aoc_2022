@@ -35,17 +35,30 @@ enum Command {
 }
 
 impl Inode {
-    fn cd_mut<'a>(&'a mut self, to: &str) -> Option<&'a mut Self> {
-        let Inode::Dir { inodes, .. } = self else {
-            panic!("can't cd from a file");
-        };
-        inodes.iter_mut().find(|inode| {
-            if let Self::Dir { name, .. } = inode {
-                name == to
-            } else {
-                false
+    fn cd<'a>(&'a mut self, to: &[impl AsRef<str>]) -> Option<&'a mut Self> {
+        if to.is_empty() {
+            return Some(self);
+        }
+
+        let inodes = match self {
+            Inode::Dir { inodes, .. } => inodes,
+            _ => {
+                panic!("can't cd from a file");
             }
-        })
+        };
+
+        let next = to[0].as_ref();
+        let rest = &to[1..];
+
+        for inode in inodes.iter_mut() {
+            if let Self::Dir { name, .. } = inode {
+                if name == next {
+                    return inode.cd(rest);
+                }
+            }
+        }
+
+        None
     }
 
     fn push_inode(&mut self, inode: Inode) {
@@ -138,10 +151,7 @@ fn rebuild_fs(input: &str) -> Inode {
 
                 // read inode lines and add to pwd
                 let inode: Inode = lines.next().unwrap().parse().unwrap();
-                let mut dir = &mut fs;
-                for dir_name in &pwd {
-                    dir = dir.cd_mut(dir_name).unwrap();
-                }
+                let dir = fs.cd(&pwd).unwrap();
                 dir.push_inode(inode);
             },
             Command::ChangeDir { to } => match to {
