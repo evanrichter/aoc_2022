@@ -5,7 +5,7 @@ pub fn solve(input: &str) -> String {
     let input = input.trim();
     let p1 = part1(input);
     let p2 = part2(input);
-    format!("{p1}, {p2}")
+    format!("{p1}, \n{p2}")
 }
 
 fn part1(input: &str) -> isize {
@@ -153,16 +153,17 @@ struct CrtState {
 
 impl CrtState {
     fn tick(&mut self, cpu: &CpuState) {
-        if self.buffer.len() % 41 == 0 {
-            self.buffer.push('\n');
-        }
-
-        self.buffer
-            .push(if (self.column() - 2..=self.column()).contains(&cpu.x) {
+        self.buffer.push(
+            if (self.column() - 1..=self.column() + 1).contains(&cpu.x) {
                 '#'
             } else {
                 ' ' // spec says to use '.' here but it's less readable
-            });
+            },
+        );
+
+        if self.buffer.len() % 41 == 40 {
+            self.buffer.push('\n');
+        }
     }
 
     fn column(&self) -> i16 {
