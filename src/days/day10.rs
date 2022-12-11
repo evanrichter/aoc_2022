@@ -10,13 +10,18 @@ pub fn solve(input: &str) -> String {
 
 fn part1(input: &str) -> isize {
     let instructions = parse_instructions(input).unwrap();
-    let mut state = CpuState::default();
-    state.ticks = 1;
+    let mut device = Device::with_instructions(instructions);
     let mut sum = 0;
 
-    for tick in [20, 60, 100, 140, 180, 220] {
-        state.fast_forward(&instructions, tick);
-        sum += state.x as isize * tick as isize;
+    // I think this has to start at one because the ticks are talked about as
+    // if they were ordinals, not starting at 0.
+    let mut tick = 1;
+    for tick_num in [20, 60, 100, 140, 180, 220] {
+        while tick != tick_num {
+            device.tick();
+            tick += 1;
+        }
+        sum += device.cpu.x as isize * tick as isize;
     }
 
     sum
@@ -24,30 +29,47 @@ fn part1(input: &str) -> isize {
 
 fn part2(input: &str) -> String {
     let instructions = parse_instructions(input).unwrap();
-    let mut cpu = CpuState::default();
-    let mut crt = CrtState::default();
+    let mut device = Device::with_instructions(instructions);
+    device.run_until_done();
 
-    let mut display = String::new();
-
-    for tick in 0.. {
-        cpu.fast_forward(&instructions, tick);
-        if tick % 40 == 0 {
-            display.push('\n');
-        }
-        display.push(crt.draw(&cpu));
-        if instructions.len() == cpu.pc {
-            break;
-        }
-    }
-
-    display
+    device.crt.buffer
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Default)]
+struct Device {
+    cpu: CpuState,
+    crt: CrtState,
+}
+
+impl Device {
+    fn tick(&mut self) {
+        self.crt.tick(&self.cpu);
+        self.cpu.tick();
+    }
+
+    fn with_instructions(instructions: Vec<Instruction>) -> Self {
+        let mut device = Self::default();
+        device.cpu = CpuState::with_instructions(instructions);
+        device
+    }
+
+    fn run_until_done(&mut self) {
+        while self.cpu.instructions.len() > self.cpu.pc {
+            self.tick();
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 struct CpuState {
+    // ticks since last complete instruction
     ticks: usize,
+    // program counter
     pc: usize,
+    // X register
     x: i16,
+    // instructions
+    instructions: Vec<Instruction>,
 }
 
 impl Default for CpuState {
@@ -56,49 +78,37 @@ impl Default for CpuState {
             ticks: 0,
             x: 1,
             pc: 0,
+            instructions: Vec::new(),
         }
     }
 }
 
 impl CpuState {
-    fn exec(&mut self, instructions: &[Instruction]) {
-        let instruction = &instructions[self.pc];
+    fn tick(&mut self) {
+        let instruction = &self.instructions[self.pc];
+        self.ticks += 1;
+
+        if instruction.ticks() > self.ticks {
+            return;
+        }
+
+        // enough ticks have passed, update the cpu state
+
         match instruction {
             Instruction::Nop => {}
             Instruction::AddX { immediate } => {
                 self.x += *immediate;
             }
         }
-        self.ticks += instruction.ticks();
+
         self.pc += 1;
+        self.ticks = 0;
     }
 
-    fn exec_backward(&mut self, instructions: &[Instruction]) {
-        self.pc -= 1;
-        let instruction = &instructions[self.pc];
-        self.ticks -= instruction.ticks();
-        match instruction {
-            Instruction::Nop => {}
-            Instruction::AddX { immediate } => {
-                self.x -= *immediate;
-            }
-        }
-    }
-
-    // step to the tick specified, without going over
-    fn fast_forward(&mut self, instructions: &[Instruction], tick: usize) {
-        loop {
-            self.exec(&instructions);
-            if self.ticks == tick {
-                // we stop exact
-                break;
-            }
-            if self.ticks > tick {
-                // we went one too far
-                self.exec_backward(&instructions);
-                break;
-            }
-        }
+    fn with_instructions(instructions: Vec<Instruction>) -> Self {
+        let mut s = Self::default();
+        s.instructions = instructions;
+        s
     }
 }
 
@@ -136,30 +146,27 @@ fn parse_instructions(input: &str) -> Result<Vec<Instruction>, ()> {
     input.lines().map(|l| l.parse::<Instruction>()).collect()
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone)]
 struct CrtState {
-    ticks: usize,
-}
-
-impl Default for CrtState {
-    fn default() -> Self {
-        Self { ticks: 1 }
-    }
+    buffer: String,
 }
 
 impl CrtState {
-    fn draw(&mut self, cpu: &CpuState) -> char {
-        let c = if (self.column() - 2..=self.column()).contains(&cpu.x) {
-            '#'
-        } else {
-            '.'
-        };
-        self.ticks += 1;
-        c
+    fn tick(&mut self, cpu: &CpuState) {
+        if self.buffer.len() % 41 == 0 {
+            self.buffer.push('\n');
+        }
+
+        self.buffer
+            .push(if (self.column() - 2..=self.column()).contains(&cpu.x) {
+                '#'
+            } else {
+                ' ' // spec says to use '.' here but it's less readable
+            });
     }
 
     fn column(&self) -> i16 {
-        (self.ticks % 40) as i16
+        (self.buffer.len() % 41) as i16
     }
 }
 
