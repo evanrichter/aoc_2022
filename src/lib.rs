@@ -28,6 +28,7 @@ const SOLVERS: &[fn(&str) -> String] = &[
     day09::solve,
     day10::solve,
     day11::solve,
+    day12::solve,
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
@@ -42,6 +43,7 @@ const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
     (day09::solve, include_str!("inputs/day09.txt")),
     (day10::solve, include_str!("inputs/day10.txt")),
     (day11::solve, include_str!("inputs/day11.txt")),
+    (day12::solve, include_str!("inputs/day12.txt")),
 ];
 
 pub fn solve_with_static_input(day: usize) {
