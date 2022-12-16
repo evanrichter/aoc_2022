@@ -1,3 +1,5 @@
+#![feature(array_windows)]
+
 mod days {
     automod::dir!(pub "src/days");
 }
@@ -30,6 +32,7 @@ const SOLVERS: &[fn(&str) -> String] = &[
     day11::solve,
     day12::solve,
     day13::solve,
+    day14::solve,
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
@@ -46,6 +49,7 @@ const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
     (day11::solve, include_str!("inputs/day11.txt")),
     (day12::solve, include_str!("inputs/day12.txt")),
     (day13::solve, include_str!("inputs/day13.txt")),
+    (day14::solve, include_str!("inputs/day14.txt")),
 ];
 
 pub fn solve_with_static_input(day: usize) {
