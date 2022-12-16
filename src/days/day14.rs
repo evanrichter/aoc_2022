@@ -20,52 +20,12 @@ struct Coord {
     y: i32,
 }
 
-impl Coord {
-    fn between(&self, &[ref a, ref b]: &[Coord; 2]) -> bool {
-        let same_x = self.x == a.x || self.x == b.x;
-        let same_y = self.y == a.y || self.y == b.y;
-        let (s, smaller, bigger) = match (same_x, same_y) {
-            (true, true) => return true,    // on an end-point
-            (false, false) => return false, // not on same line
-            // some x matches
-            (true, false) => {
-                let smaller_y = b.y.min(a.y);
-                let bigger_y = b.y.max(a.y);
-                if smaller_y == bigger_y {
-                    return false;
-                }
-                (self.y, smaller_y, bigger_y)
-            }
-            // some y matches
-            (false, true) => {
-                let smaller_x = b.x.min(a.x);
-                let bigger_x = b.x.max(a.x);
-                if smaller_x == bigger_x {
-                    return false;
-                }
-                (self.x, smaller_x, bigger_x)
-            }
-        };
-
-        s >= smaller && s <= bigger
-    }
-}
-
 #[derive(Debug)]
 struct Rock {
     coords: Vec<Coord>,
 }
 
 impl Rock {
-    fn overlaps(&self, coord: &Coord) -> bool {
-        for pair in self.coords.array_windows() {
-            if coord.between(pair) {
-                return true;
-            }
-        }
-        false
-    }
-
     // y coord of lowest rock
     fn lowest_point(&self) -> i32 {
         self.coords.iter().map(|c| c.y).max().unwrap()
@@ -119,14 +79,30 @@ fn part2(input: &str) -> usize {
 fn simulate(rocks: &[Rock]) -> usize {
     let lowest_rock = rocks.iter().map(|r| r.lowest_point()).max().unwrap();
 
-    let mut old_sand: BTreeSet<Coord> = BTreeSet::new();
+    let mut static_objects: BTreeSet<Coord> = BTreeSet::new();
+    let mut sand_count = 0;
+
+    // add each rock pixel to the static objects set
+    for rock in rocks {
+        for [from, to] in rock.coords.array_windows() {
+            if from.x == to.x {
+                for y in from.y.min(to.y)..=from.y.max(to.y) {
+                    static_objects.insert(Coord { x: from.x, y });
+                }
+            } else {
+                assert_eq!(from.y, to.y);
+                for x in from.x.min(to.x)..=from.x.max(to.x) {
+                    static_objects.insert(Coord { x, y: from.y });
+                }
+            }
+        }
+    }
 
     loop {
         // drop sand
         let mut sand = Coord { x: 500, y: 0 };
 
-        let overlaps =
-            |sand: &Coord| old_sand.contains(sand) || rocks.iter().any(|r| r.overlaps(sand));
+        let overlaps = |sand: &Coord| static_objects.contains(sand);
 
         while sand.y < lowest_rock {
             let mut test = sand.clone();
@@ -163,7 +139,8 @@ fn simulate(rocks: &[Rock]) -> usize {
         }
 
         // save stopped sand
-        old_sand.insert(sand.clone());
+        static_objects.insert(sand.clone());
+        sand_count += 1;
 
         // check if source is plugged
         if let Coord { x: 500, y: 0 } = sand {
@@ -171,7 +148,7 @@ fn simulate(rocks: &[Rock]) -> usize {
         }
     }
 
-    old_sand.len()
+    sand_count
 }
 
 #[cfg(test)]
