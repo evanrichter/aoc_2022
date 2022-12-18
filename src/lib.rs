@@ -34,6 +34,7 @@ const SOLVERS: &[fn(&str) -> String] = &[
     day13::solve,
     day14::solve,
     day15::solve,
+    day16::solve,
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
