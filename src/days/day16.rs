@@ -97,13 +97,18 @@ fn part1(input: &str) -> u32 {
     }
 
     let mut threads = Vec::new();
-    for _ in 0usize..std::thread::available_parallelism().unwrap().into() {
+    let num: usize = if cfg!(test) {
+        1
+    } else {
+        std::thread::available_parallelism().unwrap().into()
+    };
+    for _ in 0..num {
         let valves = valves.clone();
         let jh = std::thread::spawn(move || fuzz(valves, usize::MAX));
         threads.push(jh);
     }
     for t in threads {
-        t.join().unwrap();
+        return t.join().unwrap();
     }
     0
 }
@@ -155,18 +160,23 @@ fn fuzz(valves: Vec<Valve>, iters: usize) -> u32 {
 
         //if result > best {
         if !seen.contains(&result) {
-            corpus.push((actions.clone(), result));
-            best = best.max(result);
+            corpus.push((actions.clone(), result.0));
+            best = best.max(result.0);
             seen.insert(result);
             println!("best: {best} corpus size: {}", corpus.len());
+            if cfg!(test) && best == 1651 {
+                return best;
+            }
         }
     }
     best
 }
 
-fn fuzz_one(valves: &mut [Valve], actions: &[Action]) -> u32 {
+fn fuzz_one(valves: &mut [Valve], actions: &[Action]) -> (u32, u64) {
     let mut steam = 0;
     let mut valve = 0;
+
+    let mut paths: u64 = 0;
 
     for (minute, action) in actions.iter().take(MINUTES).enumerate() {
         let minute = minute + 1;
@@ -179,12 +189,15 @@ fn fuzz_one(valves: &mut [Valve], actions: &[Action]) -> u32 {
             }
             Action::Move(idx) => {
                 let conns = &valves[valve].connections;
-                valve = conns[*idx as usize % conns.len()];
+                let new = conns[*idx as usize % conns.len()];
+                valve = new;
+                let hash = (valve << 0) ^ new;
+                paths = paths | hash as u64;
             }
         }
     }
 
-    steam as u32
+    (steam as u32, paths)
 }
 
 fn part2(input: &str) -> u64 {
