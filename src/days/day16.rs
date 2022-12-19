@@ -128,11 +128,11 @@ fn fuzz(valves: Vec<Valve>, iters: usize) -> u32 {
     let mut seen = BTreeSet::new();
     let mut corpus = Vec::from([([Open; MINUTES], 100)]);
 
-    for iter in 0..iters {
+    for _iter in 0..iters {
         //println!("FUZZ RUN {iter}");
         let mut fuzz_valves = valves.clone();
 
-        let (mut actions, score) = corpus.choose_weighted(&mut rng, |item| item.1).unwrap();
+        let (mut actions, _score) = corpus.choose_weighted(&mut rng, |item| item.1).unwrap();
         //let (mut actions, score) = corpus.choose(&mut rng).unwrap();
 
         // mutate
@@ -200,7 +200,7 @@ fn fuzz_one(valves: &mut [Valve], actions: &[Action]) -> (u32, u64) {
     (steam as u32, paths)
 }
 
-fn part2(input: &str) -> u64 {
+fn part2(_input: &str) -> u64 {
     0
 }
 
