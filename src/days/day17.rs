@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use nom::{branch::alt, bytes::complete::tag, combinator::map, multi::many1, IResult};
 
 pub fn solve(input: &str) -> String {
@@ -6,7 +8,7 @@ pub fn solve(input: &str) -> String {
     format!("{p1}, {p2}")
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Block {
     F,
     R,
@@ -14,13 +16,7 @@ enum Block {
 }
 use Block::*;
 
-#[derive(Debug, Clone, Copy)]
-struct Coord {
-    x: i32,
-    y: i32,
-}
-
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct Piece {
     // the pieces to draw
     rows: &'static [[Block; 9]],
@@ -73,6 +69,7 @@ fn jets(i: &str) -> IResult<&str, Vec<Jet>> {
     )))(i)
 }
 
+#[allow(dead_code)]
 fn print_grid(grid: &[[Block; 9]]) {
     for layer in grid.iter().rev() {
         let s: String = layer
@@ -88,18 +85,58 @@ fn print_grid(grid: &[[Block; 9]]) {
     println!();
 }
 
-fn part1(input: &str) -> u32 {
+fn line_hash(line: &[Block; 9]) -> u8 {
+    let mut hash = 0;
+    for (idx, b) in line.iter().take(8).enumerate() {
+        if *b == A {
+            hash |= 1 << idx;
+        }
+    }
+    hash
+}
+
+fn grid_hash(grid: &[[Block; 9]], next_piece: usize, next_jet: usize) -> Vec<u8> {
+    grid.iter()
+        .map(line_hash)
+        .chain(next_piece.to_le_bytes().iter().cloned())
+        .chain(next_jet.to_le_bytes().iter().cloned())
+        .collect()
+}
+
+fn tetris(input: &str, pieces: u64) -> u64 {
     let (_, jets) = jets(input).unwrap();
 
     // loop the jets forever
-    let mut jets = jets.iter().cycle();
+    let mut jets = jets.iter().enumerate().cycle().peekable();
     // grid state (Y grows up)
     const FLOOR: [Block; 9] = [R; 9];
     const AIR: [Block; 9] = [R, A, A, A, A, A, A, A, R];
     let mut grid = Vec::new();
     grid.push(FLOOR);
 
-    for piece in PIECES.iter().cycle().take(2022) {
+    let mut lines_past: u64 = 0;
+    let mut seen: BTreeMap<Vec<u8>, (u64, u64)> = BTreeMap::new();
+
+    let mut pieces_cycle = PIECES.iter().enumerate().cycle().peekable();
+
+    let mut taken = 0;
+    let mut check_cycle = false;
+    while taken < pieces {
+        let (piece_index, piece) = pieces_cycle.next().unwrap();
+
+        if check_cycle {
+            let hash = grid_hash(&grid, piece_index, jets.peek().unwrap().0);
+            match seen.get(&hash) {
+                Some((lines, pieces_taken)) => {
+                    let cycles_possible = (pieces - taken) / pieces_taken;
+                    lines_past += cycles_possible * lines;
+                    taken += cycles_possible * pieces_taken;
+                }
+                None => panic!("no cycle"),
+            }
+            check_cycle = false;
+        }
+
         // find the floor
         loop {
             let layer = grid.pop().unwrap();
@@ -117,12 +154,9 @@ fn part1(input: &str) -> u32 {
             grid.push(*layer);
         }
 
-        // println!("begins falling:");
-        // print_grid(&grid);
-
         loop {
             // try push with jet
-            let jet = jets.next().unwrap();
+            let (_, jet) = jets.next().unwrap();
             use Jet::*;
 
             // store moved rows temporarily, only apply the move if all succeed
@@ -169,16 +203,8 @@ fn part1(input: &str) -> u32 {
                 }
             }
 
-            // if !moved.is_empty() {
-            //     println!("move succeeded");
-            // } else {
-            //     println!("move did nothing");
-            // }
-
             let grid_len = grid.len();
             grid[grid_len - depth - moved.len()..][..moved.len()].copy_from_slice(&moved);
-
-            // print_grid(&grid);
 
             // try move down
             // store both outcomes of: moving down, and turning to stone,
@@ -224,25 +250,40 @@ fn part1(input: &str) -> u32 {
             }
 
             if stop_falling {
-                // println!("turned to stone: {skipped}");
-                // print_grid(&stoned);
-                // println!("turned to stone");
                 let grid_len = grid.len();
                 grid[grid_len - skipped + 1 - stoned.len()..][..stoned.len()]
                     .copy_from_slice(&stoned);
                 break;
             } else {
-                // println!("fell down one: {skipped}");
-                // print_grid(&fallen);
-                // println!("fell down one");
                 let grid_len = grid.len();
                 grid[grid_len - skipped - fallen.len() + 1..][..fallen.len()]
                     .copy_from_slice(&fallen);
             }
-
-            // print_grid(&grid);
-            // if can't move down, turn F to R then break
         }
+
+        if let Some(mut new_floor) = grid.iter().skip(1).position(|l| *l == FLOOR) {
+            // found another floor! increase the count to this index
+            lines_past += new_floor as u64 + 1;
+            // we can destroy the previous layers to save allocation size
+            new_floor += 2;
+            grid.retain(|_| {
+                new_floor = new_floor.saturating_sub(1);
+                new_floor == 0
+            });
+
+            let next_piece = pieces_cycle.peek().unwrap().0;
+            let next_jet = jets.peek().unwrap().0;
+            let hash = grid_hash(&grid, next_piece, next_jet);
+            seen.entry(hash)
+                .and_modify(|entry| {
+                    check_cycle = true;
+                    entry.0 = lines_past - entry.0;
+                    entry.1 = taken - entry.1;
+                })
+                .or_insert((lines_past, taken));
+        }
+
+        taken += 1;
     }
 
     // pop off any air
@@ -254,12 +295,16 @@ fn part1(input: &str) -> u32 {
         }
     }
 
-    // subtract 1 for the floor
-    grid.len() as u32 - 1
+    // subtract 1 for the (first) floor
+    lines_past + grid.len() as u64 - 1
 }
 
-fn part2(_input: &str) -> u64 {
-    0
+fn part1(input: &str) -> u64 {
+    tetris(input, 2022)
+}
+
+fn part2(input: &str) -> u64 {
+    tetris(input, 1_000_000_000_000)
 }
 
 #[cfg(test)]
@@ -272,9 +317,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2() {
-        assert_eq!(0, part2(TEST_INPUT));
+        assert_eq!(1514285714288, part2(TEST_INPUT));
     }
 
     const TEST_INPUT: &str = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
