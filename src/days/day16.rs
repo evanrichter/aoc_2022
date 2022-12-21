@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables)]
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -13,9 +14,10 @@ use std::collections::HashMap;
 const MINUTES: usize = 30;
 
 pub fn solve(input: &str) -> String {
-    let p1 = part1(input);
-    let p2 = part2(input);
-    format!("{p1}, {p2}")
+    // let p1 = part1(input);
+    // let p2 = part2(input);
+    // format!("{p1}, {p2}")
+    "giving up for now".into()
 }
 
 #[derive(Debug)]
