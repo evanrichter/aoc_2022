@@ -39,7 +39,7 @@ const SOLVERS: &[fn(&str) -> String] = &[
     fake_solve, // 18
     fake_solve, // 19
     fake_solve, // 20
-    fake_solve, // 21
+    day21::solve,
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
@@ -63,7 +63,7 @@ const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
     (fake_solve, "fake input"), // 18
     (fake_solve, "fake input"), // 19
     (fake_solve, "fake input"), // 20
-    (fake_solve, "fake input"), // 21
+    (day21::solve, include_str!("inputs/day21.txt")),
 ];
 
 pub fn solve_with_static_input(day: usize) {
