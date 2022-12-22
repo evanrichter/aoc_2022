@@ -36,6 +36,10 @@ const SOLVERS: &[fn(&str) -> String] = &[
     day15::solve,
     day16::solve,
     day17::solve,
+    fake_solve, // 18
+    fake_solve, // 19
+    fake_solve, // 20
+    fake_solve, // 21
 ];
 
 const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
@@ -54,10 +58,20 @@ const STATIC_INPUT_SOLVERS: &[(fn(&str) -> String, &str)] = &[
     (day13::solve, include_str!("inputs/day13.txt")),
     (day14::solve, include_str!("inputs/day14.txt")),
     (day15::solve, include_str!("inputs/day15.txt")),
+    (day16::solve, include_str!("inputs/day16.txt")),
+    (day17::solve, include_str!("inputs/day17.txt")),
+    (fake_solve, "fake input"), // 18
+    (fake_solve, "fake input"), // 19
+    (fake_solve, "fake input"), // 20
+    (fake_solve, "fake input"), // 21
 ];
 
 pub fn solve_with_static_input(day: usize) {
     let (solver, input) = STATIC_INPUT_SOLVERS[day - 1];
     let solution = solver(input);
     println!("day {day} solution: {solution}");
+}
+
+fn fake_solve(_: &str) -> String {
+    "todo".into()
 }
